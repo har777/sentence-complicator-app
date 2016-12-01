@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sentence complicator</title>
+  </head>
+  <body>
+    <div id="vue-instance">
+      Enter a sentence: <input type="text" v-model="simpleSentence">
+      <pre>Original sentence: {{ simpleSentence }}</pre>
+      <pre>Complicated sentence: {{ complicatedSentence }}</pre>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.3/vue.min.js"></script>
+    <script src="https://unpkg.com/lodash@4.13.1/lodash.min.js"></script>
+    <script src="https://unpkg.com/axios@0.12.0/dist/axios.min.js"></script>
+    <script>
+        var vm = new Vue({
+            el: '#vue-instance',
+            data: {
+                simpleSentence: 'You are beautiful !',
+                complicatedSentence: 'casual acquaintance are aesthetically appealing !'
+            },
+            watch: {
+                simpleSentence: function() {
+                    this.simpleSentence = 'Waiting for you to finish typing.'
+                    this.updateComplicatedString();
+                }
+            },
+            methods: {
+                updateComplicatedString: _.debounce(function() {
+                    var vm = this;
+                    var postBody = {'sentence': this.simpleSentence}
+                    vm.complicatedSentence = 'Processing';
+                    axios.post('https://sentence-complicator.herokuapp.com/complicate', JSON.stringify(postBody))
+                        .then(function (response) {
+                            vm.complicatedSentence = response.data.sentence;
+                        })
+                        .catch(function (error) {
+                            vm.complicatedSentence = 'Error in service';
+                        });
+                }, 500)
+            }
+        });
+    </script>
+
+  </body>
+</html>
