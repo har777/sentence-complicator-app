@@ -6,6 +6,7 @@
   <body>
     <div id="vue-instance">
       Enter a sentence: <input type="text" v-model="simpleSentence">
+      <pre>Status: {{ status }}</pre>
       <pre>Original sentence: {{ simpleSentence }}</pre>
       <pre>Complicated sentence: {{ complicatedSentence }}</pre>
     </div>
@@ -17,12 +18,13 @@
         var vm = new Vue({
             el: '#vue-instance',
             data: {
-                simpleSentence: 'You are beautiful !',
-                complicatedSentence: 'casual acquaintance are aesthetically appealing !'
+                simpleSentence: 'Beautifully finish !',
+                complicatedSentence: 'with great nicety drain of resources !',
+                status: 'Complication complete :P'
             },
             watch: {
                 simpleSentence: function() {
-                    this.simpleSentence = 'Waiting for you to finish typing.'
+                    this.status = 'Waiting for you to finish typing.';
                     this.updateComplicatedString();
                 }
             },
@@ -30,13 +32,16 @@
                 updateComplicatedString: _.debounce(function() {
                     var vm = this;
                     var postBody = {'sentence': this.simpleSentence}
-                    vm.complicatedSentence = 'Processing';
+                    vm.status = 'processing';
+                    vm.complicatedSentence = '';
                     axios.post('https://sentence-complicator.herokuapp.com/complicate', JSON.stringify(postBody))
                         .then(function (response) {
                             vm.complicatedSentence = response.data.sentence;
+                            vm.status = 'Complication complete :P';
                         })
                         .catch(function (error) {
-                            vm.complicatedSentence = 'Error in service';
+                            vm.complicatedSentence = '';
+                            vm.status ='Error in service :(';
                         });
                 }, 500)
             }
